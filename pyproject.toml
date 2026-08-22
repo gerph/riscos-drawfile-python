@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "riscos-drawfile"
+version = "0.1.0"
+description = "Decode RISC OS DrawFile documents into a structural object model, and convert them to SVG"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Charles Ferguson (Gerph)", email = "gerph@gerph.org" }]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+# Optional: lets the `riscos-drawfile` command render embedded Sprite
+# objects as real pixels instead of a placeholder box (see cli.py).
+# Not needed to use this package as a library -- svg.py's own
+# drawfile_to_svg() takes an equivalent sprite_to_png callback from
+# any caller who wants the same thing.
+sprites = ["riscos-dumpsprites>=0.2.0"]
+
+[project.scripts]
+riscos-drawfile = "riscos_drawfile.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
