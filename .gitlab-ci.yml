@@ -1,0 +1,63 @@
+stages:
+  - test
+  - package
+  - publish
+
+variables:
+  LC_ALL: C.UTF-8
+  GIT_DEPTH: "0"
+
+test:
+  stage: test
+  tags:
+    - robe
+  script:
+    - python3 -m pip install --disable-pip-version-check -e '.[dev]'
+    - python3 -m pytest
+
+package:
+  stage: package
+  tags:
+    - robe
+  script:
+    - python3 -m pip install --disable-pip-version-check --target /tmp/pypa-build build
+    - |
+      set -eu
+      eval "$(./ci-vars)"
+      PYTHONPATH="/tmp/pypa-build${PYTHONPATH:+:$PYTHONPATH}" \
+        make package VERSION="$CI_PROJECT_VERSION"
+      package_file="dist/riscos-drawfile_${CI_PROJECT_VERSION}_all.deb"
+      wheel_file="$(find dist -maxdepth 1 -name '*.whl' -print -quit)"
+      test -f "$package_file"
+      test -n "$wheel_file"
+  artifacts:
+    name: "riscos-drawfile-$CI_COMMIT_REF_SLUG"
+    paths:
+      - dist/*.deb
+      - dist/*.whl
+    expire_in: 1 week
+
+publish:
+  stage: publish
+  tags:
+    - robe
+  dependencies:
+    - package
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master"'
+  script:
+    - |
+      set -eu
+      eval "$(./ci-vars)"
+      package_file="dist/riscos-drawfile_${CI_PROJECT_VERSION}_all.deb"
+      wheel_file="$(find dist -maxdepth 1 -name '*.whl' -print -quit)"
+      test -f "$package_file"
+      test -n "$wheel_file"
+      curl --fail --silent --show-error \
+        --user "$ARTIFACTORY_USER:$ARTIFACTORY_ENCPASSWORD" \
+        --upload-file "$package_file" \
+        "${ARTIFACTORY_URL}${ARTIFACTORY_REPO}/build/cross/riscos-drawfile/$(basename "$package_file")"
+      curl --fail --silent --show-error \
+        --user "$ARTIFACTORY_USER:$ARTIFACTORY_ENCPASSWORD" \
+        --upload-file "$wheel_file" \
+        "${ARTIFACTORY_URL}${ARTIFACTORY_REPO}/build/cross/riscos-drawfile/$(basename "$wheel_file")"
