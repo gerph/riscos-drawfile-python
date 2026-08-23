@@ -12,8 +12,8 @@ test:
   tags:
     - robe
   script:
-    - python3 -m pip install --disable-pip-version-check -e '.[dev]'
-    - python3 -m pytest
+    - python3 -m pip install --disable-pip-version-check --target /tmp/pytest-deps 'pytest>=7'
+    - PYTHONPATH="src:/tmp/pytest-deps${PYTHONPATH:+:$PYTHONPATH}" python3 -m pytest
 
 package:
   stage: package
