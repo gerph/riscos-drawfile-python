@@ -14,6 +14,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from riscos_drawfile import __version__
 from riscos_drawfile.drawfile import DrawFile
 from riscos_drawfile.svg import drawfile_to_svg
 
@@ -44,6 +45,7 @@ def parse_args(argv: "list[str] | None" = None) -> argparse.Namespace:
         prog="riscos-drawfile",
         description="Convert a RISC OS DrawFile to a standalone SVG document.",
     )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument("input", type=Path, help="Path to the DrawFile (e.g. a ',aff' file)")
     parser.add_argument(
         "output",
