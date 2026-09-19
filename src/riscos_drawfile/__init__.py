@@ -30,7 +30,7 @@ from riscos_drawfile.drawfile import (
     colour_rgb,
 )
 
-__version__ = "0.1.0"
+__version__ = "dev"
 
 __all__ = [
     "__version__",
