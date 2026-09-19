@@ -26,9 +26,9 @@ package:
       eval "$(./ci-vars)"
       PYTHONPATH="/tmp/pypa-build${PYTHONPATH:+:$PYTHONPATH}" \
         make package VERSION="$CI_PROJECT_VERSION"
-      package_file="dist/riscos-drawfile_${CI_PROJECT_VERSION}_all.deb"
+      package_file="$(find dist -maxdepth 1 -name '*.deb' -print -quit)"
       wheel_file="$(find dist -maxdepth 1 -name '*.whl' -print -quit)"
-      test -f "$package_file"
+      test -n "$package_file"
       test -n "$wheel_file"
   artifacts:
     name: "riscos-drawfile-$CI_COMMIT_REF_SLUG"
@@ -49,9 +49,9 @@ publish:
     - |
       set -eu
       eval "$(./ci-vars)"
-      package_file="dist/riscos-drawfile_${CI_PROJECT_VERSION}_all.deb"
+      package_file="$(find dist -maxdepth 1 -name '*.deb' -print -quit)"
       wheel_file="$(find dist -maxdepth 1 -name '*.whl' -print -quit)"
-      test -f "$package_file"
+      test -n "$package_file"
       test -n "$wheel_file"
       curl --fail --silent --show-error \
         --user "$ARTIFACTORY_USER:$ARTIFACTORY_ENCPASSWORD" \
